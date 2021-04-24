@@ -1,5 +1,5 @@
 import React, {useState} from 'react';
-import {View, Text, Platform, TouchableOpacity} from 'react-native';
+import {View, Text, Platform, TouchableOpacity, Alert} from 'react-native';
 import {SafeAreaView} from 'react-native-safe-area-context';
 import TextInput from '../../../components/input';
 import styles from './styles';
@@ -9,6 +9,7 @@ import moment from 'moment';
 import {Data1} from '../../../dummyData/dummyData';
 import {useDispatch, useSelector} from 'react-redux';
 import {addRequest} from '../../../redux/actions';
+import DropDownPicker from 'react-native-dropdown-picker';
 
 function CreateEvents(props: any) {
   const dispatch = useDispatch();
@@ -19,8 +20,8 @@ function CreateEvents(props: any) {
   const [dateToString, setDateToString] = useState<string>('');
   const [startTimeToString, setStartTimeToString] = useState<string>('');
   const [endTimeToString, setEndTimeToString] = useState<string>('');
-  const [date, setDate] = useState(new Date(1598051730000));
-  const [time, setTime] = useState(new Date(1598051730000));
+  const [date, setDate] = useState<Date>(new Date(1598051730000));
+  const [time, setTime] = useState<Date>(new Date(1598051730000));
   const [timeEnd, setTimeEnd] = useState(new Date(1598051730000));
   const [mode, setMode] = useState<any>('date');
   const [show, setShow] = useState<boolean>(false);
@@ -32,15 +33,16 @@ function CreateEvents(props: any) {
     false,
   );
   const [showEndTimePicker, setShowEndTimePicker] = useState<boolean>(false);
+  const [eventType, setEventType] = useState<string>('');
 
-  const onChange = (event: object, selectedDate: any) => {
+  const onChange = (event: object, selectedDate: Date | undefined) => {
     console.log('selectedDate', selectedDate);
 
     const currentDate = selectedDate || date;
     setDate(currentDate);
     setShow1(true);
     setShowDatePicker(false);
-    setDateToString(moment(currentDate).format('MM/DD/YYYY'));
+    setDateToString(moment(currentDate).format('YYYY-MM-DD'));
   };
   const onChangeStartTime = (event: object, selectedDate: any) => {
     console.log('selectedDate', selectedDate);
@@ -67,12 +69,15 @@ function CreateEvents(props: any) {
   };
 
   const _createEvent = () => {
+    if (name == '' || date == null || eventType == '') {
+      return Alert.alert('Please fill the required fields');
+    }
     dispatch(
       addRequest(
         name,
         description,
-        moment(date).format('MM/DD/YYYY'),
-        'office',
+        moment(date).format('YYYY-MM-DD'),
+        eventType,
         props.navigation,
       ),
     );
@@ -203,6 +208,26 @@ function CreateEvents(props: any) {
           <TouchableOpacity style={styles.attachmentButtonStyle}>
             <Text style={{paddingLeft: 5}}>Attachment (Optional)</Text>
           </TouchableOpacity>
+        </View>
+        <View style={{flex: 0.06}}></View>
+
+        <View style={{justifyContent: 'center', alignItems: 'center'}}>
+          <DropDownPicker
+            placeholder="Select Type"
+            items={[
+              {label: 'Event', value: 'event'},
+              {label: 'Out of Office', value: 'out of office'},
+              {label: 'Task', value: 'task'},
+            ]}
+            defaultValue={eventType}
+            containerStyle={{height: 50, width: '60%'}}
+            style={{backgroundColor: '#fafafa', width: '100%'}}
+            itemStyle={{
+              justifyContent: 'flex-start',
+            }}
+            dropDownStyle={{backgroundColor: '#fafafa'}}
+            onChangeItem={item => setEventType(item.value)}
+          />
         </View>
         <View style={{flex: 0.4}}></View>
         <View style={{justifyContent: 'center', alignItems: 'center'}}>
