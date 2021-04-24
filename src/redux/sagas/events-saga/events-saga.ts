@@ -19,7 +19,7 @@ function* addEvent(params: any) {
   try {
     let obj = {
       name: params.title,
-      type: params.type,
+      type: params.listType,
       description: params.description,
       date: params.date,
     };
